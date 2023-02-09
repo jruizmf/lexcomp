@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpWord\TemplateProcessor;
 
 
-class Template extends Controller
+class PrintJudgment extends Controller
 {
         /**
      * Create a new controller instance.
@@ -21,39 +21,8 @@ class Template extends Controller
     {
         $this->middleware('auth');
     }
-    public function index()
-    {
-        $list = TemplateModel::all();
-        return view('template.index')->with('list', $list);
-    }
-
-    public function create()
-    {
-        return view('template.create');
-    }
-    public function store(Request $request)
-    {
-        //var_dump($request->file('file')->storeAs('uploads'));
-        if ($request->hasFile('file')) {
-            $request->validate([
-                'file' => 'required|mimes:pdf,xlxs,xlx,docx,doc,csv,txt,png,gif,jpg,jpeg|max:2048',
-            ]); 
-            $fileName = $request->file->getClientOriginalName();
-            $filePath = $fileName;
-     
-        $request->file('file')->storeAs('documents', $fileName );
-       
-        }
-        $item = new TemplateModel();
-        $item->name = $request->input('name');
-        $item->description  = $request->input('description');
-        $item->url  = $filePath ;
-        $item->type = $request->input('type');
-
-        $item->save();
-        return redirect()->route('plantillas');
-    }
-    public function generate(Request $request)
+    
+    public function generateTemplate(Request $request)
     {
         $item;
         $type = (int)$request->input('type');
@@ -98,26 +67,5 @@ class Template extends Controller
         exit;
         
     }
-    public function edit($id)
-    {
-        $item = TemplateModel::find($id);
-        return view('template.edit')->with('item',$item);
-    }
-    public function update(Request $request)
-    {
-        $item = TemplateModel::find($id);
-        $item->name = $request->input('name');
-        $item->deal  = $request->input('description');
-        $item->city  = $request->input('url');
-        $item->state = $request->input('type');
-        $item->save();
-        return redirect()->route('template.index');
-    }
-     // Esta es la primer opcion
-     public function destroy($id)
-     {
-         $pastel = TemplateModel::find($id);
-         $pastel->delete();
-         return redirect()->route('template.index');
-     }
+
 }

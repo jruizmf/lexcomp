@@ -32,7 +32,7 @@
             <td class="text-center">{{ $diligence->license }}</td>
             <td class="text-center">{{ $diligence->address }}</td>
             <td class="text-center">{{ $diligence->city }}</td>
-            <td class="text-center">{{ $diligence->state }}</td>
+            <td class="text-center">{{ $diligence->state_name }}</td>
             <td class="text-center">{{ $diligence->correspondent_name }}</td>
 
             <td class="text-center">{{ $diligence->created_at }}</td>
@@ -65,15 +65,14 @@
 									<span aria-hidden="true">&times;</span>
 								</button>
 						</div>
-                        <?php echo Form::open([ 'route' => 'print/generate', 'method' => 'POST']); ?>
-
+                      
 						<div id="body-content  " class="modal-body">
                        
                             <div class="form-group">
                                 <?php echo Form::label('template', 'Plantilla', ['for' => 'template'] ); ?>
                                 <input type="hidden" name="type" value="judgment">
                                 <input type="hidden" name="id" value="{{$diligence->id }}">
-                                <select name="template" class="form-control">
+                                <select id="template" name="template" class="form-control">
                                      <?php $__currentLoopData = $templates; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $template): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <option value="<?php echo e($template->id); ?>"><?php echo e($template->name); ?></option>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -99,11 +98,8 @@
 						<div class="modal-footer">
 							<button onclick="cerrar({{ $diligence->id }})" type="button" class="btn btn-secondary" data- 
                             dismiss="modal">Cerrar</button>
-								<button type="submit" class="btn btn-primary">Guardar 
-                                </button>
+                            <button onclick="print()" type="button" class="btn btn-primary" >Imprimir </button>
 						</div>
-                        <?php echo Form::close(); ?>
-
 					</div>
 				</div>
 			</div>
@@ -120,6 +116,30 @@
         $('#print-modal-'+id).modal('hide')
         $("#events").hide();
         $('#variables-content').empty();
+    }
+    function print(){
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $.ajax({
+                  url: "/print/generate",
+                  method: 'POST',
+                  data:{
+                    id:$("#id").val(),
+                    template:$("#template").val(),
+                    event:$("#event").val()
+                },
+                success: function(result){
+
+                    //alert(response); // show [object, Object]
+                    console.log(result);
+                 },error: function(result){
+                   console.log(result);
+                }
+                
+            });
     }
     $(document).ready(function() {
      

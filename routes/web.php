@@ -81,8 +81,6 @@ Route::put('event/update', [App\Http\Controllers\Event::class, 'update'])->name(
 Route::delete('event/destroy', [App\Http\Controllers\Event::class, 'destroy'])->name('event/destroy');
 Route::get('/event/{id}', [App\Http\Controllers\Event::class, 'byId'])->name('event.byId');
 
-Route::post('print/generate', 'App\Http\Controllers\PrintJudgment@generateTemplate');
-
+Route::post('print/generate', 'App\Http\Controllers\PrintJudgment@generateTemplate')->name('print/generate');
 Auth::routes();
-
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

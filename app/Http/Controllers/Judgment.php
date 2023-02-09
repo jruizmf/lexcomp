@@ -27,7 +27,8 @@ class Judgment extends Controller
         $list = DB::table('judgment')
         ->leftjoin('judgment_type', 'judgment.judgment_type', '=', 'judgment_type.id')
         ->leftjoin('correspondent', 'judgment.correspondent_id', '=', 'correspondent.id')
-        ->select('judgment.*', 'judgment_type.name as type_name', 'correspondent.name as correspondent_name')
+        ->leftjoin('states', 'judgment.state', '=', 'states.id')
+        ->select('judgment.*', 'judgment_type.name as type_name', 'correspondent.name as correspondent_name', 'states.description as state_name')
         ->get();
         return view('judgment.index',compact( 'list', 'templates'));
     }

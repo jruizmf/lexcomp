@@ -9,16 +9,18 @@
 
 <div class="form-group">
     {!! Form::label('url', 'Plantilla', ['for' => 'url'] ) !!}
-    <input type="file" class="form-control"  name='file' required placeholder="Carga tu documento ">
+    <input type="file" class="form-control"  name='file' required placeholder="{{$item ? $item->url : 'Carga tu documento'}} " value="{{ Storage::disk('public')->url($item ? $item->url : '' ) }}">
 </div>
-
-
-<div class="form-group">
+@if (isset($id))
+    <input type="hidden" id="id" name="id" value="{{$id}}">
+    @endif
+    <input type="hidden" id="type" name="type" value="1">
+{{-- <div class="form-group">
     {!! Form::label('type', 'Tipo de documento', ['for' => 'type'] ) !!}
     <select name="type" class="form-control">
         <option value="" disabled selected>Elige un tipo de documento...</option>
         <option value="1">Uno</option>
         <option value="2">Dos</option>
         <option value="3">Tres</option>
-    </select>
-</div>
+    </select> 
+</div> --}}
