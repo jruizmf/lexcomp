@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TemplateModel;
-use App\Models\JudgmentModel;
-use App\Models\QuotesModel;
+use App\Models\JudgmentTypeModel;
+use App\Models\JudgmentSubTypeModel;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpWord\TemplateProcessor;
 
@@ -29,12 +29,13 @@ class Template extends Controller
 
     public function create()
     {
-        return view('template.create');
+        $judgment_types = JudgmentTypeModel::all();
+        $judgment_subtypes = JudgmentSubTypeModel::all();
+        return view('template.create', compact('judgment_types'));
     }
 
     public function store(Request $request)
     {
-        //var_dump($request->file('file')->storeAs('uploads'));
         if ($request->hasFile('file')) {
             $request->validate([
                 'file' => 'required|mimes:pdf,xlxs,xlx,docx,doc,csv,txt,png,gif,jpg,jpeg|max:2048',
@@ -49,68 +50,19 @@ class Template extends Controller
         $item->name = $request->input('name');
         $item->description = $request->input('description');
         $item->url = $filePath;
-        $item->type = $request->input('type');
+        $item->type = $request->input('judgment_subtype');
 
         $item->save();
         return redirect()->route('plantillas');
     }
-
-    public function generateTemplate(Request $request)
-    {
-        $item;
-        $type = (int) $request->input('type');
-        $id = (int) $request->input('id');
-        $data['template'] = TemplateModel::find((int) $request->input('template'));
-        $content = Storage::disk('local')->get('documents/' . $data['template']->url);
-
-        $templateProcessor = new TemplateProcessor(storage_path('app/documents/' . $data['template']->url));
-        if ($type == "quote") {
-            $item = QuotesModel::find((int) $id);
-            $templateProcessor->setValue('PARTE1', 'Sohail');
-            $templateProcessor->setValue('PARTE2', 'Saleem');
-            $templateProcessor->setValue('EXPEDIENTE', 'Sohail');
-            $templateProcessor->setValue('MATERIA', 'Saleem');
-            $templateProcessor->setValue('NUMJUZ', 'Sohail');
-            $templateProcessor->setValue('CITY', 'Saleem');
-        } else {
-            $item = JudgmentModel::find((int) $id);
-            $templateProcessor->setValue('PARTE1', 'Sohail');
-            $templateProcessor->setValue('PARTE2', 'Saleem');
-            $templateProcessor->setValue('EXPEDIENTE', 'Sohail');
-            $templateProcessor->setValue('MATERIA', 'Saleem');
-            $templateProcessor->setValue('NUMJUZ', 'Sohail');
-            $templateProcessor->setValue('CITY', 'Saleem');
-        }
-
-        $file = $templateProcessor->saveAs('Result.docx');
-        $filename = 'Result.docx';
-
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename=' . $filename);
-        header('Content-Transfer-Encoding: binary');
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-        header('Pragma: public');
-        header('Content-Length: ' . filesize($filename));
-        flush();
-        readfile($filename);
-        unlink($filename); // deletes the temporary file
-        exit;
-
-    }
     public function edit($id)
     {
         $item = TemplateModel::find($id);
-        return view('template.edit', compact('item'));
+        $judgment_types = JudgmentTypeModel::all();
+        return view('template.edit', compact('item', 'id', 'judgment_subtypes'));
     }
     public function update(Request $request)
     {
-        $item = TemplateModel::find($request->input('id'));
-        $filePath = "";
-        var_dump($item);
-        die();        
-        
         if ($request->hasFile('file')) {
             $request->validate([
                 'file' => 'required|mimes:pdf,xlxs,xlx,docx,doc,csv,txt,png,gif,jpg,jpeg|max:2048',
@@ -118,14 +70,19 @@ class Template extends Controller
             $fileName = $request->file->getClientOriginalName();
             $filePath = $fileName;
 
-            $request->file('file')->storeAs('documents', $fileName);
+            $request->file('file')->storeAs('documents/templates', $fileName);
 
         }
+        $item = TemplateModel::find($request->input('id'));
+
         $item->name = $request->input('name');
         $item->description = $request->input('description');
-        $item->url = $filePath;
-        $item->type = $request->input('type');
+   
+        $item->url = $request->hasFile('file') ? $filePath : $item->name;
+        $item->type = $request->input('judgment_subtype');
         $item->save();
+        
+      
         return redirect()->route('plantillas');
     }
     // Esta es la primer opcion

@@ -7,6 +7,7 @@ use App\Models\JudgmentTypeModel;
 use App\Models\JudgmentSubTypeModel;
 use App\Models\CorrespondentModel;
 use App\Models\StateModel;
+use App\Models\EventModel;
 use Illuminate\Http\Request;
 use DB;
 
@@ -24,13 +25,14 @@ class Judgment extends Controller
     public function index()
     {
         $templates = TemplateModel::all();
+        $events = EventModel::all();
         $list = DB::table('judgment')
         ->leftjoin('judgment_type', 'judgment.judgment_type', '=', 'judgment_type.id')
         ->leftjoin('correspondent', 'judgment.correspondent_id', '=', 'correspondent.id')
         ->leftjoin('states', 'judgment.state', '=', 'states.id')
         ->select('judgment.*', 'judgment_type.name as type_name', 'correspondent.name as correspondent_name', 'states.description as state_name')
         ->get();
-        return view('judgment.index',compact( 'list', 'templates'));
+        return view('judgment.index',compact( 'list', 'templates', 'events'));
     }
     public function create()
     {

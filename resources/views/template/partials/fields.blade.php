@@ -1,26 +1,85 @@
 <div class="form-group">
     {!! Form::label('name', 'Nombre', ['for' => 'nombre'] ) !!}
-    {!! Form::text('name', null , ['class' => 'form-control', 'id' => 'name', 'placeholder' => 'Escribe el nombre del Corresponsal...' ]  ) !!}
+    {!! Form::text('name', null , ['class' => 'form-control', 'id' => 'name', 'placeholder' => 'Escribe el nombre del Corresponsal...', 'required' ]  ) !!}
 </div>
 <div class="form-group">
     {!! Form::label('description', 'Descripcion', ['for' => 'description'] ) !!}
-    {!! Form::text('description', null , ['class' => 'form-control', 'id' => 'description', 'placeholder' => 'Datos extras sobre la plantilla...' ]  ) !!}
+    {!! Form::text('description', null , ['class' => 'form-control', 'id' => 'description', 'placeholder' => 'Datos extras sobre la plantilla...', 'required' ]  ) !!}
 </div>
 
 <div class="form-group">
-    {!! Form::label('url', 'Plantilla', ['for' => 'url'] ) !!}
-    <input type="file" class="form-control"  name='file' required placeholder="{{$item ? $item->url : 'Carga tu documento'}} " value="{{ Storage::disk('public')->url($item ? $item->url : '' ) }}">
+    {!! Form::label('file', 'Plantilla', ['for' => 'file'] ) !!}
+    <input type="file" class="form-control"  id='file'  name='file' required >
 </div>
+
 @if (isset($id))
     <input type="hidden" id="id" name="id" value="{{$id}}">
-    @endif
+@endif
     <input type="hidden" id="type" name="type" value="1">
-{{-- <div class="form-group">
-    {!! Form::label('type', 'Tipo de documento', ['for' => 'type'] ) !!}
-    <select name="type" class="form-control">
-        <option value="" disabled selected>Elige un tipo de documento...</option>
-        <option value="1">Uno</option>
-        <option value="2">Dos</option>
-        <option value="3">Tres</option>
-    </select> 
-</div> --}}
+    <div class="form-group">
+        {!! Form::label('status', 'Tipo de Juicio', ['for' => 'judgment_type'] ) !!}
+            <select name="judgment_type" id="judgment_type"  class="form-control" required>
+              @if (!isset($item))
+             <option value="" selected>Seleccionar Juicio</option>
+             @endif
+            <?php $__currentLoopData = $judgment_types; $__env->addLoop($__currentLoopData); 
+                foreach($__currentLoopData as $type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <option value="<?php echo e($type->id); ?>" {{isset($item) && $item->judgment_type == $type->id  ? 'selected' : ''}}><?php echo e($type->name); ?></option>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+    
+            </select>
+            <input type="hidden" name="id" id="id" value="{{isset($item) && $item->id ? $item->id : ''}}">
+            <input type="hidden" name="status" id="status" value="{{isset($item) && $item->status ? $item->status : '1'}}">
+    </div>
+    <div id="div-subtype" class="form-group">
+        {!! Form::label('status', 'Tipo de formato', ['for' => 'judgment_type'] ) !!}
+            <select name="judgment_subtype" id="judgment_subtype"  class="form-control" required>
+            <option value="">Favor de seleccionar</option>
+            </select>
+        </div>
+
+        <script  type="application/javascript">
+            $(document).ready(function(){
+                jQuery('#judgment_type').change(function(e){
+                   
+                   e.preventDefault();
+                   loadSubtypes(e.target.value);
+              });
+            })
+                function loadSubtypes(value){
+               $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN':"{{ csrf_token() }}"
+                    }
+                });
+                var subtypeId = 0;
+                @if (isset($item->judgment_subtype))
+                    subtypeId ={{$item->judgment_subtype}}
+                @endif
+               $.ajax({
+                  url: "/jugment-subtype/bytype/"+value,
+                  method: 'get',
+                  data:{
+                  },
+                  success: function(result){
+                    $("#div-subtype").attr('hidden', false);
+                    $("#judgment_subtype").attr('disabled', false);
+
+                    //alert(response); // show [object, Object]
+
+                    var $select = $('#judgment_subtype');
+    
+                    $select.find('option').remove();
+                    $.each(result.data,function(key, value)
+                    {  
+                            $select.append(`<option value='${value.id}' ${value.id == subtypeId ? 'selected': ''}>${value.description}</option>`); // return empty
+                        
+                    });
+                    if(subtypeId ==0){
+                     loadvariables(result.data[0].id);
+                    }
+                  },error: function(result){
+                     console.log(result);
+                  }});
+            }
+        </script>

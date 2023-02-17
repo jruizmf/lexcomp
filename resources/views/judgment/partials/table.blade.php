@@ -18,6 +18,7 @@
         <th class="text-center">Creado</th>
         <th class="text-center">Modificado</th>
         <th class="text-center">Acciones</th>
+        <th></th>
     </tr>
   </thead>
   <tbody>
@@ -54,55 +55,62 @@
                 {!! Form::close() !!}
             </td>
             <!-- Modal Example Start-->
-        <div class="modal fade" id="print-modal-{{ $diligence->id }}" tabindex="-1" role="dialog" aria- 
-            labelledby="demoModalLabel" aria-hidden="true">
-				<div class="modal-dialog" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h5 class="modal-title" id="demoModalLabel">Imprimir Registro</h5>
+            <td>
+            <div class="modal fade" id="print-modal-{{ $diligence->id }}" tabindex="-1" role="dialog" aria-labelledby="demoModalLabel" aria-hidden="true">
+            
+                <div class="modal-dialog" role="document">
+                    <form id="form{{$diligence->id}}" action="{{ url('print/generate') }}" method="POST">
+                        
+					    <div class="modal-content">
+						    <div class="modal-header">
+							    <h5 class="modal-title" id="demoModalLabel">Imprimir Registro</h5>
 								<button type="button" class="close" data-dismiss="modal" aria- 
                                 label="Close" onclick="cerrar({{ $diligence->id }})">
 									<span aria-hidden="true">&times;</span>
 								</button>
-						</div>
+						    </div>
                       
-						<div id="body-content  " class="modal-body">
+						    <div id="body-content  " class="modal-body">
                        
-                            <div class="form-group">
-                                <?php echo Form::label('template', 'Plantilla', ['for' => 'template'] ); ?>
-                                <input type="hidden" name="type" value="judgment">
-                                <input type="hidden" name="id" value="{{$diligence->id }}">
-                                <select id="template" name="template" class="form-control">
-                                     <?php $__currentLoopData = $templates; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $template): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <option value="<?php echo e($template->id); ?>"><?php echo e($template->name); ?></option>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                </select>
-                                <input type="hidden" name="redirect" value="corresponsales">
-                            </div>
-                            <div class="form-group">
-                                <input type="radio"  id="isEvent" name="isEvent" > Mostrar Ocursos</br>
-                            </div>
-                            <div id="events" class="form-group">
-                                <?php echo Form::label('event', 'Ocursos', ['for' => 'event'] ); ?>
-                                <select id="event" class="form-control">
-                                    <option value="" selected>Seleccionar</option>
-                                     <?php $__currentLoopData = $templates; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $template): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <option value="<?php echo e($template->id); ?>"><?php echo e($template->name); ?></option>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                </select>
-                            </div>
-                            <div id="variables-content">
+                                <div class="form-group">
+                                    <?php echo Form::label('template', 'Plantilla', ['for' => 'template'] ); ?>
+                                    <input type="hidden" name="type" value="judgment">
+                                    <input type="hidden" name="id" value="{{$diligence->id }}">
+                                    <select id="template" name="template" class="form-control">
+                                        <?php $__currentLoopData = $templates; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $template): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($template->id); ?>"><?php echo e($template->name); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </select>
+                                    <input type="hidden" name="redirect" value="corresponsales">
+                                </div>
+                                <div class="form-group">
+                                    <input type="radio"  id="isEvent" name="isEvent" > Mostrar Ocursos</br>
+                                </div>
+                                <div id="events" class="form-group">
+                                    <?php echo Form::label('event', 'Ocursos', ['for' => 'event'] ); ?>
+                                    <select id="event" name="event" class="form-control">
+                                        <option value="" selected>Seleccionar</option>
+                                        <?php $__currentLoopData = $events; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $template): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($template->id); ?>"><?php echo e($template->name); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </select>
+                                </div>
+                                <div id="variables-content">
 
+                                </div>
+						    </div>
+                            <div class="modal-footer">
+                                <button onclick="cerrar({{ $diligence->id }})" type="button" class="btn btn-secondary" data- 
+                                dismiss="modal">Cerrar</button>
+                                <button type="submit" class="btn btn-primary" >Imprimir </button>
                             </div>
-						</div>
-						<div class="modal-footer">
-							<button onclick="cerrar({{ $diligence->id }})" type="button" class="btn btn-secondary" data- 
-                            dismiss="modal">Cerrar</button>
-                            <button onclick="print()" type="button" class="btn btn-primary" >Imprimir </button>
-						</div>
-					</div>
+	    				</div>
+                        @csrf
+                        @method('POST')
+                    </form>
 				</div>
 			</div>
+            </td>
         </tr>
     @endforeach
   </tbody>
@@ -132,9 +140,11 @@
                     event:$("#event").val()
                 },
                 success: function(result){
-
-                    //alert(response); // show [object, Object]
-                    console.log(result);
+                    var blob = new Blob([result]);
+                var link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = "Sample.docx";
+                link.click();
                  },error: function(result){
                    console.log(result);
                 }
@@ -176,7 +186,7 @@
                         $.each(JSON.parse(result.data.data),function(key, value)
                         {
                             console.log(value)
-                            $div.append('<div class="form-group"><label for="">' + value.name + ' - ' + value.description + '</label><input id="title"  name="title" class="form-control" value=""/></div>'); // return empty
+                            $div.append('<div class="form-group"><label for="">' + value.name + ' - ' + value.description + '</label><input id="'+ value.name +'"  name="'+ value.name +'" class="form-control" value=""/></div>'); // return empty
                         });
                         
                     }
