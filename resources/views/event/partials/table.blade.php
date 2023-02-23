@@ -6,6 +6,7 @@
         <th class="text-center">ID</th>
         <th class="text-center">Nombre</th>
         <th class="text-center">Descripción</th>
+        <th class="text-center">URL</th>
         <th class="text-center">Creado</th>
         <th class="text-center">Modificado</th>
         <th class="text-center">Acciones</th>
@@ -17,6 +18,7 @@
             <td class="text-center">{{ $item->id }}</td>
             <td class="text-center">{{ $item->name }}</td>
             <td class="text-center">{{ $item->description }}</td>
+            <td class="text-center">{{-- $item->url --}}uncomment</td>
             <td class="text-center">{{ $item->created_at }}</td>
             <td class="text-center">{{ $item->updated_at }}</td>
     

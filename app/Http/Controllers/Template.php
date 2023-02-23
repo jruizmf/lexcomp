@@ -8,7 +8,7 @@ use App\Models\JudgmentTypeModel;
 use App\Models\JudgmentSubTypeModel;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpWord\TemplateProcessor;
-
+use DB;
 
 class Template extends Controller
 {
@@ -23,7 +23,10 @@ class Template extends Controller
     }
     public function index()
     {
-        $list = TemplateModel::all();
+        $list = DB::table('templates')
+        ->leftjoin('judgment_subtype', 'templates.type', '=', 'judgment_subtype.id')
+        ->select('templates.*', 'judgment_subtype.name as template_name')
+        ->get();
         return view('template.index', compact('list'));
     }
 
@@ -31,7 +34,7 @@ class Template extends Controller
     {
         $judgment_types = JudgmentTypeModel::all();
         $judgment_subtypes = JudgmentSubTypeModel::all();
-        return view('template.create', compact('judgment_types'));
+        return view('template.create', compact('judgment_types', 'judgment_subtypes'));
     }
 
     public function store(Request $request)
@@ -42,9 +45,7 @@ class Template extends Controller
             ]);
             $fileName = $request->file->getClientOriginalName();
             $filePath = $fileName;
-
-            $request->file('file')->storeAs('documents', $fileName);
-
+            $request->file('file')->storeAs('documents/templates', $fileName);
         }
         $item = new TemplateModel();
         $item->name = $request->input('name');
@@ -59,7 +60,8 @@ class Template extends Controller
     {
         $item = TemplateModel::find($id);
         $judgment_types = JudgmentTypeModel::all();
-        return view('template.edit', compact('item', 'id', 'judgment_subtypes'));
+        $judgment_subtypes = JudgmentSubTypeModel::all();
+        return view('template.edit', compact('item', 'id', 'judgment_types', 'judgment_subtypes'));
     }
     public function update(Request $request)
     {

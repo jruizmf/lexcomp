@@ -7,7 +7,7 @@
         <th class="text-center">Nombre</th>
         <th class="text-center">Descripcion</th>
         <th class="text-center">url</th>
-        <th class="text-center">tipo</th>
+        <th class="text-center">Formato</th>
         <th class="text-center">Creado</th>
         <th class="text-center">Modificado</th>
         <th class="text-center">Acciones</th>
@@ -17,10 +17,10 @@
     @foreach($list as $item)
         <tr>
             <td class="text-center">{{ $item->id }}</td>
-            <td class="text-center">{{ $item->nombre }}</td>
+            <td class="text-center">{{ $item->name }}</td>
             <td class="text-center">{{ $item->description }}</td>
             <td class="text-center">{{ $item->url }}</td>
-            <td class="text-center">{{ $item->type }}</td>
+            <td class="text-center">{{ $item->template_name }}</td>
             <td class="text-center">{{ $item->created_at }}</td>
             <td class="text-center">{{ $item->updated_at }}</td>
        

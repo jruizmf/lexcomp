@@ -7,7 +7,10 @@
     {!! Form::label('description', 'Descripcion', ['for' => 'description'] ) !!}
     {!! Form::text('description', null , ['class' => 'form-control', 'id' => 'description', 'placeholder' => 'Escribe el nombre del formato...' ]  ) !!}
 </div>
-
+<div class="form-group">
+    {!! Form::label('file', 'Plantilla', ['for' => 'file'] ) !!}
+    <input type="file" class="form-control"  id='file'  name='file' required >
+</div>
 @if (isset($item->id))
     <input type="hidden" id="id" name="id" value="{{$item->id}}">
     @endif

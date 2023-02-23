@@ -44,6 +44,15 @@ class Event extends Controller
         $item = new EventModel();
         $item->name = $request->input('name');
         $item->description = $request->input('description');
+        if ($request->hasFile('file')) {
+            $request->validate([
+                'file' => 'required|mimes:pdf,xlxs,xlx,docx,doc,csv,txt,png,gif,jpg,jpeg|max:2048',
+            ]);
+            $fileName = $request->file->getClientOriginalName();
+            $item->url = $fileName;
+            $request->file('file')->storeAs('documents/templates', $fileName);
+        }
+        
         $data = array();
         for ($i=0; $i < count($request->input('name_')); $i++) { 
             $data[$i]["name"] = $request->input('name_')[$i];
@@ -52,6 +61,7 @@ class Event extends Controller
             $data[$i]["options"] = explode(",",$request->input('options_')[$i]);
          
         }
+       
         $item->data = json_encode($data) ;
         $item->save();
 
@@ -70,6 +80,14 @@ class Event extends Controller
         $item = EventModel::find($id);
         $item->name = $request->input('name');
         $item->description = $request->input('description');
+        if ($request->hasFile('file')) {
+            $request->validate([
+                'file' => 'required|mimes:pdf,xlxs,xlx,docx,doc,csv,txt,png,gif,jpg,jpeg|max:2048',
+            ]);
+            $fileName = $request->file->getClientOriginalName();
+            $item->url  = $fileName;
+            $request->file('file')->storeAs('documents/templates', $fileName);
+        }
         $data = array();
         for ($i=0; $i < count($request->input('name_')); $i++) { 
             $data[$i]["name"] = $request->input('name_')[$i];
@@ -78,6 +96,7 @@ class Event extends Controller
             $data[$i]["options"] = explode(",",$request->input('options_')[$i]);
          
         }
+        
         $item->data = json_encode($data) ;
         $item->save();
         return redirect()->route('ocursos');
@@ -86,7 +105,8 @@ class Event extends Controller
      public function destroy(Request $request)
      {
          $id = $request->input('id');
-         $pastel = EventModel::find($id);
+         $pastel = EventModel::
+         find($id);
          $pastel->delete();
          return redirect()->route('ocursos');
      }

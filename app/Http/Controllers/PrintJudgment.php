@@ -66,43 +66,6 @@ class PrintJudgment extends Controller
             ->select('judgment.*', 'judgment_type.name as type_name', 'correspondent.name as correspondent_name', 'states.description as state_name')
             ->limit(1)->get()[0];
           
-      
-            if(isset($item->state)){
-                $itemState = StateModel::find((int)$item->state);
-                if($itemState != null && $itemState->data != null){
-                    $data = json_decode($itemState->data) ;
-                    foreach ($data as $key => $value) {
-                        $templateProcessor->setValue($value->name, $value->value);
-                    }
-                }
-                
-            }
-            
-            if(isset($item->judgment_subtype)){
-                $itemType= JudgmentSubTypeModel::find((int)$item->judgment_subtype);
-                if($itemType != null && $itemType->data != null){
-                    $data = json_decode($itemType->data) ;
-
-                    foreach ($data as $key => $value) {
-                          var_dump($key);
-                        var_dump($value);
-                        //$templateProcessor->setValue($key, $value);
-                    }
-                }
-            }
-            // string(1) "1" string(8) "redirect" string(14) "corresponsales" string(5) "event" string(1) "7"
-               // $vars = get_object_vars((array)$request->input());
-             
-           //   }
-            foreach($request->input() as $key=>$value) {
-                
-                if($key != 'type' && $key != 'id' && $key != 'template' && $key != 'event' && $key != 'redirect' && $key != '_token')
-                {
-                    $templateProcessor->setValue($key, $value);
-                 
-                }
-            }
-            die();
             $templateProcessor->setValue('PARTE1', $item->applicant1);
             $templateProcessor->setValue('PARTE2', $item->defendant);
             $templateProcessor->setValue('LAWYER', $item->lawyer);
@@ -114,6 +77,28 @@ class PrintJudgment extends Controller
             $templateProcessor->setValue('STATE', $item->state_name);
             $templateProcessor->setValue('EXPEDIENTE', $item->expedient);
             $templateProcessor->setValue('ASUNTO', $item->deal);
+
+            if(isset($item->state)){
+                $itemState = StateModel::find((int)$item->state);
+                if($itemState != null && $itemState->data != null){
+                    $data = json_decode($itemState->data) ;
+                    foreach ($data as $key => $value) {
+                        $templateProcessor->setValue($value->name, $value->value);
+                    }
+                }
+                
+            }
+            
+            foreach($request->input() as $key=>$value) {
+                
+                if($key != 'type' && $key != 'id' && $key != 'template' && $key != 'event' && $key != 'redirect' && $key != '_token')
+                {
+                //    if(gettype($key) == 'string' && gettype($value) == 'string' ){
+                       $templateProcessor->setValue((string)$key, (string)$value);
+                //    }
+               
+                }
+            }
             
         }
        
